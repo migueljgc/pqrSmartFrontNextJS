@@ -2,7 +2,7 @@
 
 ## 🔵 **README para el Frontend (Next.js)**
 
-```markdown
+
 # 🔵 PQRSmart Frontend (Next.js)
 
 Aplicación web construida con **Next.js 14** para gestionar el sistema de **PQRS**.  
