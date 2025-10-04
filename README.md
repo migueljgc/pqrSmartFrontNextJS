@@ -39,5 +39,5 @@ npm install
 
 # Ejecutar en desarrollo
 npm run dev
-
+```
 El frontend estará disponible en: **http://localhost:3000**
