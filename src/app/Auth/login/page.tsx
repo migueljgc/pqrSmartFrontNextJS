@@ -40,7 +40,12 @@ function page() {
         });
         // Guardar el rol (si lo devuelve el backend)
         localStorage.setItem("role", login.data.role);
-        router.push("/dashboard");
+        if (login.data.role === "admin") {
+          router.push("/admin/dashboard");
+        }
+        if (login.data.role === "user") {
+          router.push("/dashboard");
+        }
       }
     } catch (err: any) {
       console.error(err.response?.data || err.message);

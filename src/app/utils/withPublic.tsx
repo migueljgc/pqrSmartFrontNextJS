@@ -9,7 +9,12 @@ export default function withPublic(Component: React.ComponentType) {
 
     useEffect(() => {
       const token = localStorage.getItem("token");
+      const role = localStorage.getItem("role");
       if (token) {
+        if (role === "admin") {
+          router.push("/admin/dashboard");
+          return;
+        }
         // Si ya hay token, redirige al dashboard
         router.push("/dashboard");
       }
