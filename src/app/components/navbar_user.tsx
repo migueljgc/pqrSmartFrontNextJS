@@ -16,25 +16,23 @@ function classNames(...classes: (string | undefined | false | null)[]): string {
   return classes.filter(Boolean).join(" ");
 }
 
-function Navbar() {
+function NavbarUser() {
   const pathname = usePathname();
-
   // TODO: Set currentUser based on actual authentication logic or route, if needed.
   const navigation = [
     {
       name: "Dashboard",
-      href: "/admin/dashboard",
-      current: pathname === "/admin/dashboard",
+      href: "/user/dashboard",
+      current: pathname === "/user/dashboard",
     },
     {
-      name: "Users",
-      href: "/admin/users",
-      current: pathname === "/admin/users",
+      name: "PQRS",
+      href: "/user/pqrs",
+      current: pathname === "/user/pqrs",
     },
     { name: "Projects", href: "#", current: false },
     { name: "Calendar", href: "#", current: false },
   ];
-
   const router = useRouter();
   const handleLogout = () => {
     const confirmLogout = window.confirm("¿Seguro que deseas cerrar sesión?");
@@ -99,7 +97,7 @@ function Navbar() {
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
             <button
               type="button"
-              className="relative rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
+              className="cursor-pointer relative rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
             >
               <span className="absolute -inset-1.5" />
               <span className="sr-only">View notifications</span>
@@ -107,8 +105,8 @@ function Navbar() {
             </button>
 
             {/* Profile dropdown */}
-            <Menu as="div" className="relative ml-3">
-              <MenuButton className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
+            <Menu as="div" className="relative ml-3 cursor-pointer">
+              <MenuButton className="cursor-pointer relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
                 <span className="absolute -inset-1.5" />
                 <span className="sr-only">Open user menu</span>
                 <img
@@ -176,4 +174,4 @@ function Navbar() {
   );
 }
 
-export default Navbar;
+export default NavbarUser;

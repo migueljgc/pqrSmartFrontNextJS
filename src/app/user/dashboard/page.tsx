@@ -1,13 +1,13 @@
 "use client";
+import NavbarUser from "@/app/components/navbar_user";
 import withAuth from "../../utils/withAuth";
-import Navbar from "@/app/components/navbar";
 
-function DashboardPageAdmin() {
+function DashboardPageUser() {
   return (
     <div className="min-h-screen bg-white flex flex-col items-center font-sans">
       {/* Header */}
       <header className="w-full bg-green-600 text-white shadow-md">
-        <Navbar />
+        <NavbarUser />
       </header>
       {/* Contenido principal */}
       <main className="flex flex-col items-center text-center mt-10 px-4 max-w-3xl">
@@ -29,4 +29,4 @@ function DashboardPageAdmin() {
   );
 }
 
-export default withAuth(DashboardPageAdmin, ["admin"]);
+export default withAuth(DashboardPageUser, ["user"]);

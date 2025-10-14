@@ -38,13 +38,14 @@ function page() {
             Authorization: `Bearer ${res.data.token}`,
           },
         });
+        localStorage.setItem("userId", JSON.stringify(login.data.id));
         // Guardar el rol (si lo devuelve el backend)
         localStorage.setItem("role", login.data.role);
         if (login.data.role === "admin") {
           router.push("/admin/dashboard");
         }
         if (login.data.role === "user") {
-          router.push("/dashboard");
+          router.push("/user/dashboard");
         }
       }
     } catch (err: any) {
