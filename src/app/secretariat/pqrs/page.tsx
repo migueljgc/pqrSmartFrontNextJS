@@ -1,13 +1,12 @@
 "use client";
-import NavbarUser from "@/app/components/navbar_user";
 import withAuth from "../../utils/withAuth";
 import { useEffect, useState } from "react";
 import api from "@/app/api/api";
-import AddNewPqrsModal from "@/app/components/modals/AddNewPqrsModal";
+import AnswerModal from "@/app/components/modals/AnswerModal";
+import NavbarSecretariat from "@/app/components/navbar_secretariat";
 import ViewPqrs from "@/app/components/modals/ViewPqrs";
-import { set } from "react-hook-form";
 
-function PqrsPageUser() {
+function PqrsPageSecretariat() {
   type Pqrs = {
     id: number;
     title: string;
@@ -24,21 +23,21 @@ function PqrsPageUser() {
     };
   };
   const [pqrs, setPqrs] = useState<Pqrs[]>([]);
-  const [isOpenAddPqrs, setIsOpenAddPqrs] = useState(false);
+  const [isOpenResponder, setIsOpenResponder] = useState(false);
   const [isOpenViewPqrs, setIsOpenViewPqrs] = useState(false);
   const [selectedPqrs, setSelectedPqrs] = useState<Pqrs | null>(null);
-  const userId =
-    typeof window !== "undefined" ? localStorage.getItem("userId") : null;
+  const typeId =
+    typeof window !== "undefined" ? localStorage.getItem("type") : null;
   useEffect(() => {
     const fetchPqrs = async () => {
       try {
-        console.log("Fetching PQRS for User ID:", userId);
-        if (!userId) return; // Espera hasta tener el userId
+        console.log("Fetching PQRS for User ID:", typeId);
+        if (!typeId) return; // Espera hasta tener el userId
         const token = localStorage.getItem("token");
         if (!token)
           return console.error("No se encontró el token de autenticación");
 
-        const response = await api.get(`/pqrs/${userId}`, {
+        const response = await api.get(`/pqrs/type/${typeId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -53,50 +52,7 @@ function PqrsPageUser() {
 
     fetchPqrs();
   }, []);
-  const handleNewPqrs = async (data: {
-    title: string;
-    description: string;
-    createdAt: Date;
-    typePqrsId?: number;
-  }) => {
-    try {
-      const formData = {
-        title: data.title,
-        description: data.description,
-        status: "PENDING",
-        createdAt: new Date(data.createdAt),
 
-        user: {
-          id: Number(userId),
-        },
-        pqrsType: {
-          id: data.typePqrsId,
-        },
-      };
-      console.log("Datos enviados para la actualización:", formData);
-      const response = await api.post(`/pqrs`, formData);
-      console.log("Respuesta de la actualización:", response.data);
-
-      if (response.status === 201) {
-        // Actualiza la lista local con la respuesta del servidor (optimista/definitiva)
-        if (response.data.pqrsType.id == 1)
-          response.data.pqrsType = { name: "Peticion", id: 1 };
-        if (response.data.pqrsType.id == 2)
-          response.data.pqrsType = { name: "Queja", id: 2 };
-        if (response.data.pqrsType.id == 3)
-          response.data.pqrsType = { name: "Reclamo", id: 3 };
-        if (response.data.pqrsType.id == 4)
-          response.data.pqrsType = { name: "Sugerencia", id: 4 };
-
-        setPqrs((prev: any[]) => [...prev, response.data]);
-        alert("PQRS agregada con éxito");
-      } else {
-        console.error("Error al actualizar el usuario:", response);
-      }
-    } catch (error) {
-      console.error("Error al guardar usuario:", error);
-    }
-  };
   const handleCancel = async (id: number) => {
     try {
       const token = localStorage.getItem("token");
@@ -130,7 +86,7 @@ function PqrsPageUser() {
     <div className="min-h-screen bg-white flex flex-col items-center font-sans">
       {/* Header */}
       <header className="w-full bg-green-600 text-white shadow-md">
-        <NavbarUser />
+        <NavbarSecretariat />
       </header>
 
       {/* Contenido principal */}
@@ -142,19 +98,6 @@ function PqrsPageUser() {
               Complete list of PQRS registered to your User.
             </p>
           </div>
-
-          <button
-            onClick={() => setIsOpenAddPqrs(true)}
-            className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg shadow-md transition"
-          >
-            Enter new PQRS
-          </button>
-          {isOpenAddPqrs && (
-            <AddNewPqrsModal
-              onClose={() => setIsOpenAddPqrs(false)}
-              onSave={handleNewPqrs}
-            />
-          )}
         </div>
 
         {/* Tabla de usuarios */}
@@ -211,23 +154,46 @@ function PqrsPageUser() {
                     {pqrs.createdAt}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <span
-                      className="mr-4 cursor-pointer"
-                      title="Details"
-                      onClick={() => {
-                        setIsOpenViewPqrs(true);
-                        setSelectedPqrs(pqrs);
-                      }}
-                    >
-                      {"🔎"}
-                    </span>
-                    {pqrs.status === "PENDING" && (
+                    {pqrs.status === "PENDING" ? (
+                      <div className="">
+                        <span
+                          className="mr-4 cursor-pointer"
+                          title="Details"
+                          onClick={() => {
+                            setIsOpenViewPqrs(true);
+                            setSelectedPqrs(pqrs);
+                          }}
+                        >
+                          {"🔎"}
+                        </span>
+                        <span
+                          className="mr-4 cursor-pointer text-green-600 hover:text-green-700"
+                          title="Responder"
+                          onClick={() => {
+                            setSelectedPqrs(pqrs);
+                            setIsOpenResponder(true);
+                          }}
+                        >
+                          {"📩"}
+                        </span>
+                        <span
+                          className="mr-4 cursor-pointer cancel-button"
+                          title="Cancel"
+                          onClick={() => handleCancel(pqrs.id)}
+                        >
+                          ❌
+                        </span>
+                      </div>
+                    ) : (
                       <span
-                        className="mr-4 cursor-pointer cancel-button"
-                        title="Cancel"
-                        onClick={() => handleCancel(pqrs.id)}
+                        className="mr-4 cursor-pointer"
+                        title="Details"
+                        onClick={() => {
+                          setIsOpenViewPqrs(true);
+                          setSelectedPqrs(pqrs);
+                        }}
                       >
-                        ❌
+                        {"🔎"}
                       </span>
                     )}
                   </td>
@@ -255,10 +221,27 @@ function PqrsPageUser() {
               pqrs={selectedPqrs}
             />
           )}
+          {isOpenResponder && selectedPqrs && (
+            <AnswerModal
+              pqrs={selectedPqrs}
+              onClose={() => {
+                setIsOpenResponder(false);
+                setSelectedPqrs(null);
+              }}
+              onSave={() => {
+                // Refresca la lista de PQRS tras responder
+                setPqrs((prev) =>
+                  prev.map((p) =>
+                    p.id === selectedPqrs.id ? { ...p, status: "ANSWERED" } : p
+                  )
+                );
+              }}
+            />
+          )}
         </div>
       </main>
     </div>
   );
 }
 
-export default withAuth(PqrsPageUser, ["user"]);
+export default withAuth(PqrsPageSecretariat, ["secretariat"]);

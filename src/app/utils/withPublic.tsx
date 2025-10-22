@@ -12,7 +12,15 @@ export default function withPublic(Component: React.ComponentType) {
       const role = localStorage.getItem("role");
       if (token) {
         if (role === "admin") {
-          router.push("/admin/dashboard");
+          router.push("/admin/home");
+          return;
+        }
+        if (role === "user") {
+          router.push("/user/dashboard");
+          return;
+        }
+        if (role === "secretariat") {
+          router.push("/secretariat/dashboard");
           return;
         }
         // Si ya hay token, redirige al dashboard

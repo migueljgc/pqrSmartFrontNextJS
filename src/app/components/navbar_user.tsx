@@ -10,7 +10,8 @@ import {
 } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import api from "../api/api";
 
 function classNames(...classes: (string | undefined | false | null)[]): string {
   return classes.filter(Boolean).join(" ");
@@ -20,6 +21,11 @@ function NavbarUser() {
   const pathname = usePathname();
   // TODO: Set currentUser based on actual authentication logic or route, if needed.
   const navigation = [
+    {
+      name: "Home",
+      href: "/user/home",
+      current: pathname === "/user/home",
+    },
     {
       name: "Dashboard",
       href: "/user/dashboard",
@@ -42,12 +48,34 @@ function NavbarUser() {
       router.push("/Auth/login");
     }
   };
+  const [initial, setInitial] = useState("");
+  const [image, setImage] = useState({ profileImage: "" });
   useEffect(() => {
     // This effect runs once on mount to update the current navigation item
     navigation.forEach((item) => {
       item.current = pathname === item.href;
     });
+    const fetchProfileImage = async () => {
+      const token = localStorage.getItem("token"); // JWT
+      const response = await api.get("/users/profileImage", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setImage(response.data);
+    };
+    // Esto solo se ejecuta en el cliente
+    const storedInitial = localStorage.getItem("initial");
+    if (storedInitial) {
+      setInitial(storedInitial);
+    }
+    fetchProfileImage();
   }, []);
+  useEffect(() => {
+    if (image?.profileImage) {
+      console.log("Imagen cargada:", image.profileImage);
+    }
+  }, [image]);
   return (
     <Disclosure
       as="nav"
@@ -109,11 +137,17 @@ function NavbarUser() {
               <MenuButton className="cursor-pointer relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
                 <span className="absolute -inset-1.5" />
                 <span className="sr-only">Open user menu</span>
-                <img
-                  alt=""
-                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                  className="size-8 rounded-full bg-gray-800 outline -outline-offset-1 outline-white/10"
-                />
+                {image.profileImage ? (
+                  <img
+                    alt="Foto de perfil"
+                    src={image.profileImage}
+                    className="size-8 rounded-full bg-gray-800 outline -outline-offset-1 outline-white/10 object-cover"
+                  />
+                ) : (
+                  <div className="size-8 rounded-full bg-[#fafafa] text-green-700 text-xl font-bold flex items-center justify-center outline -outline-offset-1 outline-white/10">
+                    {initial?.charAt(0).toUpperCase() || "?"}
+                  </div>
+                )}
               </MenuButton>
 
               <MenuItems
@@ -122,7 +156,7 @@ function NavbarUser() {
               >
                 <MenuItem>
                   <a
-                    href="#"
+                    href="/profile"
                     className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:outline-hidden"
                   >
                     Your profile

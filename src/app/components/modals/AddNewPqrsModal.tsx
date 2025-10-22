@@ -70,7 +70,7 @@ export default function AddNewPqrsModal({
 
         {/* Contenido del modal */}
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
-          Ingresar nueva PQRS
+          Enter new PQRS
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -140,7 +140,7 @@ export default function AddNewPqrsModal({
             type="submit"
             className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition"
           >
-            Enviar
+            Save
           </button>
         </form>
       </div>

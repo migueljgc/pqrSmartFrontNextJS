@@ -1,12 +1,17 @@
 "use client";
+import api from "@/app/api/api";
 import { useEffect, useState } from "react";
 
 type User = {
   name: string;
   email: string;
   role: string;
+  pqrsType?: { id: number; name: string };
 };
-
+type PqrsType = {
+  id: number;
+  name: string;
+};
 export default function EditUserModal({
   onClose,
   user,
@@ -20,10 +25,24 @@ export default function EditUserModal({
     name: "",
     email: "",
     role: "",
+    pqrsType: undefined,
   });
-
+  const [typePqrs, setTypePqrs] = useState<PqrsType[]>([]);
+  const fetchTypePqrs = async () => {
+    try {
+      const response = await api.get("/pqrs-type");
+      if (response.status === 200) {
+        setTypePqrs(response.data);
+        console.log(response.data);
+      } else console.error("Error al obtener los tipos de pqrs");
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+    }
+  };
   useEffect(() => {
+    fetchTypePqrs();
     if (user) setFormData(user);
+    console.log("Usuario a editar:", user);
   }, [user]);
 
   const handleChange = (
@@ -51,13 +70,11 @@ export default function EditUserModal({
         </button>
 
         {/* Contenido del modal */}
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">
-          Editar Usuario
-        </h2>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Edit User</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-600 mb-1">Nombre</label>
+            <label className="block text-sm text-gray-600 mb-1">Name</label>
             <input
               type="text"
               name="name"
@@ -79,7 +96,7 @@ export default function EditUserModal({
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">Rol</label>
+            <label className="block text-sm text-gray-600 mb-1">Role</label>
             <select
               name="role"
               value={formData.role}
@@ -90,12 +107,47 @@ export default function EditUserModal({
               <option>user</option>
             </select>
           </div>
+          {formData.role === "secretariat" ? (
+            /* Tipo de PQRS */
+            <div className="relative">
+              <label className="block text-sm text-gray-600 mb-1">
+                Type PQRS
+              </label>
+              <select
+                name="typePqrsId"
+                value={formData.pqrsType ? formData.pqrsType.id : ""}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 "
+                required
+              >
+                {typePqrs.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <div className="relative">
+              <label className="block text-sm text-gray-600 mb-1">
+                Type PQRS
+              </label>
+              <select
+                name="typePqrsId"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 "
+                required
+              >
+                <option value="" disabled hidden></option>
+                <option value="">type not allowed</option>
+              </select>
+            </div>
+          )}
 
           <button
             type="submit"
             className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-500 transition"
           >
-            Guardar
+            Save
           </button>
         </form>
       </div>
